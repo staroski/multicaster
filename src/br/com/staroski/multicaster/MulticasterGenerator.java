@@ -26,7 +26,7 @@ public class MulticasterGenerator {
         javaCode = javaCode.replace(TAG_CLASS_NAME, generateClassName(fullClassName));
         javaCode = javaCode.replace(TAG_LISTENER_NAME, listenerType.getSimpleName());
         javaCode = javaCode.replace(TAG_LISTENER_METHODS, generateListenerMethods(listenerType));
-        return javaCode;
+        return javaCode.trim();
     }
 
     private String generateClassName(String fullClassName) {
@@ -50,19 +50,6 @@ public class MulticasterGenerator {
             }
         }
         return imports.toString();
-    }
-
-    private Method[] getMethods(Class<?> type) {
-        List<Method> allMethods = new ArrayList<>();
-        Class<?> supertype = type;
-        while (supertype != null && !supertype.equals(Object.class)) {
-            allMethods.addAll(Arrays.asList(supertype.getDeclaredMethods()));
-            for (Class<?> itf : supertype.getInterfaces()) {
-                allMethods.addAll(Arrays.asList(getMethods(itf)));
-            }
-            supertype = supertype.getSuperclass();
-        }
-        return allMethods.toArray(new Method[allMethods.size()]);
     }
 
     private String generateListenerMethods(Class<?> listenerType) {
@@ -89,6 +76,19 @@ public class MulticasterGenerator {
         return methodDeclarations.toString();
     }
 
+    private Method[] getMethods(Class<?> type) {
+        List<Method> allMethods = new ArrayList<>();
+        Class<?> supertype = type;
+        while (supertype != null && !supertype.equals(Object.class)) {
+            allMethods.addAll(Arrays.asList(supertype.getDeclaredMethods()));
+            for (Class<?> itf : supertype.getInterfaces()) {
+                allMethods.addAll(Arrays.asList(getMethods(itf)));
+            }
+            supertype = supertype.getSuperclass();
+        }
+        return allMethods.toArray(new Method[allMethods.size()]);
+    }
+
     private String getPackageName(String fullClassName) {
         StringBuilder packageDeclaration = new StringBuilder();
         int index = fullClassName.lastIndexOf('.');
@@ -106,8 +106,9 @@ public class MulticasterGenerator {
             if (p > 0) {
                 text.append(", ");
             }
-            String name = type.getSimpleName();
-            text.append(name.toLowerCase());
+            String typeName = type.getSimpleName();
+            String paramName = typeName.substring(0, 1).toLowerCase() + typeName.substring(1);
+            text.append(paramName);
             if (params.length > 1) {
                 text.append(p);
             }
@@ -123,8 +124,9 @@ public class MulticasterGenerator {
             if (p > 0) {
                 text.append(", ");
             }
-            String name = type.getSimpleName();
-            text.append(name).append(" ").append(name.toLowerCase());
+            String typeName = type.getSimpleName();
+            String paramName = typeName.substring(0, 1).toLowerCase() + typeName.substring(1);
+            text.append(typeName).append(" ").append(paramName);
             if (params.length > 1) {
                 text.append(p);
             }
