@@ -1,0 +1,48 @@
+${class.package}
+
+${class.imports}
+
+final class ${class.name} implements ${listener.name} {
+
+    protected static ${listener.name} add(${listener.name} existingListener, ${listener.name} listenerToAdd) {
+        if (existingListener == null) {
+            return listenerToAdd;
+        }
+        if (listenerToAdd == null) {
+            return existingListener;
+        }
+        return new ${class.name}(existingListener, listenerToAdd);
+    }
+
+    protected static ${listener.name} remove(${listener.name} existingListener, ${listener.name} listenerToRemove) {
+        if (existingListener == listenerToRemove || existingListener == null) {
+            return null;
+        }
+        if (existingListener instanceof ${class.name}) {
+            ${class.name} composite = (${class.name}) existingListener;
+            if (listenerToRemove == composite.a) {
+                return composite.b;
+            }
+            if (listenerToRemove == composite.b) {
+                return composite.a;
+            }
+            ${listener.name} first = remove(composite.a, listenerToRemove);
+            ${listener.name} second = remove(composite.b, listenerToRemove);
+            if (first == composite.a && second == composite.b) {
+                return composite;
+            }
+            return add(first, second);
+        }
+        return existingListener;
+    }
+
+    private final ${listener.name} a;
+    private final ${listener.name} b;
+
+    private ${class.name}(${listener.name} a, ${listener.name} b) {
+        this.a = a;
+        this.b = b;
+    }
+
+${listener.methods}
+}
