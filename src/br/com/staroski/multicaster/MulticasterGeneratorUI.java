@@ -76,10 +76,14 @@ public class MulticasterGeneratorUI extends JFrame {
             InputStream input = type.getResourceAsStream(fontPath);
             Font font = Font.createFont(Font.TRUETYPE_FONT, input).deriveFont(Font.PLAIN, 14);
             textAreaGenerated.setFont(font);
+            textLineNumber.setFont(font);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return scrollPane;
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
     }
 
     private Component createNorthPanel() {
