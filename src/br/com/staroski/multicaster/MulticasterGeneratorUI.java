@@ -96,7 +96,7 @@ public class MulticasterGeneratorUI extends JFrame {
         textFieldClassName = new JTextField();
         textFieldClassName.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(textFieldClassName);
-        JLabel listenerName = new JLabel("Listener interface name:");
+        JLabel listenerName = new JLabel("Listener interface name: (Use comma to separate more than one)");
         listenerName.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(listenerName);
         textFieldListenerName = new JTextField();
@@ -117,7 +117,7 @@ public class MulticasterGeneratorUI extends JFrame {
         StringBuilder text = new StringBuilder(error.getClass().getSimpleName());
         String message = error.getMessage();
         if (message != null) {
-            text.append(":\n\n").append(message).append("\n");
+            text.append(":\n").append(message).append("");
         }
         JOptionPane.showMessageDialog(this, text.toString(), "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -128,16 +128,17 @@ public class MulticasterGeneratorUI extends JFrame {
             warn("Generated class name is mandatory!");
             return;
         }
-        String listenerName = textFieldListenerName.getText();
-        if (listenerName == null || (listenerName = listenerName.trim()).isEmpty()) {
+        String listenerNames = textFieldListenerName.getText();
+        if (listenerNames == null || (listenerNames = listenerNames.trim()).isEmpty()) {
             warn("Listener interface name is mandatory!");
             return;
         }
         try {
             MulticasterGenerator generator = new MulticasterGenerator();
-            String generatedCode = generator.generate(className, listenerName);
+            String generatedCode = generator.generate(className, listenerNames.split("\\,"));
             textAreaGenerated.setText(generatedCode);
             textAreaGenerated.setCaretPosition(0);
+            textAreaGenerated.requestFocus();
         } catch (Exception e) {
             e.printStackTrace();
             error(e);

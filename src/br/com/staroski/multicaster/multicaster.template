@@ -28,12 +28,12 @@ ${multicaster.methods}
             if (listenerToRemove == tuple.b) {
                 return tuple.a;
             }
-            Object first = removeInternal(tuple.a, listenerToRemove);
-            Object second = removeInternal(tuple.b, listenerToRemove);
-            if (first == tuple.a && second == tuple.b) {
+            Object a = removeInternal(tuple.a, listenerToRemove);
+            Object b = removeInternal(tuple.b, listenerToRemove);
+            if (a == tuple.a && b == tuple.b) {
                 return tuple;
             }
-            return addInternal(first, second);
+            return addInternal(a, b);
         }
         return existingListener;
     }

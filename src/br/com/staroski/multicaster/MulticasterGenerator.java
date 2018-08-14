@@ -20,14 +20,31 @@ public class MulticasterGenerator {
     private static final String TAG_LISTENER_METHODS = "${listener.methods}";
 
     public String generate(String fullClassName, String fullListenerName) throws Exception {
-        Class<?> listenerType = Class.forName(fullListenerName);
+        return generate(fullClassName, new String[] { fullListenerName });
+    }
+
+    public String generate(String fullClassName, String... fullListenerNames) throws Exception {
+        if (fullClassName == null || fullListenerNames == null) {
+            throw new IllegalArgumentException("null");
+        }
+        int count = fullListenerNames.length;
+        if (count < 1) {
+            throw new IllegalArgumentException("At least one listener interface must be specified!");
+        }
+        Class<?>[] listenerTypes = new Class<?>[count];
+        for (int i = 0; i < count; i++) {
+            listenerTypes[i] = Class.forName(fullListenerNames[i].trim());
+            if (!listenerTypes[i].isInterface()) {
+                throw new IllegalArgumentException(listenerTypes[i].getName() + " is not a interface!");
+            }
+        }
         String javaCode = loadTemplate();
         javaCode = javaCode.replace(TAG_CLASS_PACKAGE, generatePackage(fullClassName));
-        javaCode = javaCode.replace(TAG_CLASS_IMPORTS, generateImports(listenerType));
+        javaCode = javaCode.replace(TAG_CLASS_IMPORTS, generateImports(listenerTypes));
         javaCode = javaCode.replace(TAG_CLASS_NAME, generateClassName(fullClassName));
-        javaCode = javaCode.replace(TAG_LISTENER_NAME, generateImplements(listenerType));
-        javaCode = javaCode.replace(TAG_MULTICASTER_METHODS, generateMulticasterMethods(listenerType));
-        javaCode = javaCode.replace(TAG_LISTENER_METHODS, generateListenerMethods(listenerType));
+        javaCode = javaCode.replace(TAG_LISTENER_NAME, generateImplements(listenerTypes));
+        javaCode = javaCode.replace(TAG_MULTICASTER_METHODS, generateMulticasterMethods(listenerTypes));
+        javaCode = javaCode.replace(TAG_LISTENER_METHODS, generateListenerMethods(listenerTypes));
         return javaCode.trim();
     }
 
@@ -39,63 +56,124 @@ public class MulticasterGenerator {
         return fullClassName;
     }
 
-    private String generateImplements(Class<?> listenerType) {
-        return listenerType.getSimpleName();
+    private String generateImplementedListenerMethod(String typeName, Method method) {
+        StringBuilder text = new StringBuilder();
+        String methodName = method.getName();
+
+        text.append("    @Override\n");
+        text.append("    public void ").append(methodName).append("(");
+        text.append(getParameterTypesAndNames(method));
+        text.append(") {\n");
+
+        for (char variable = 'a'; variable <= 'b'; variable++) {
+            text.append("        ((").append(typeName).append(") ").append(variable).append(").").append(methodName).append("(");
+            text.append(getParameterNames(method));
+            text.append(");\n");
+        }
+        text.append("    }");
+        return text.toString();
     }
 
-    private String generateImports(Class<?> listenerType) {
-        StringBuilder imports = new StringBuilder();
-        imports.append("import ").append(listenerType.getName()).append(";");
-        Set<String> parameterImports = new TreeSet<>();
-        for (Method method : getMethods(listenerType)) {
-            for (Class<?> type : method.getParameterTypes()) {
-                String name = type.getName();
-                if (parameterImports.add(name)) {
-                    imports.append("\nimport ").append(name).append(";");
+    private String generateImplements(Class<?>[] listenerTypes) {
+        StringBuilder text = new StringBuilder();
+        Set<String> implemented = new TreeSet<>();
+        for (int i = 0; i < listenerTypes.length; i++) {
+            String name = listenerTypes[i].getSimpleName();
+            if (implemented.add(name)) {
+                if (i > 0) {
+                    text.append(", ");
+                }
+                text.append(name);
+            }
+        }
+        return text.toString();
+    }
+
+    private String generateImports(Class<?>[] listenerTypes) {
+        StringBuilder text = new StringBuilder();
+        Set<String> imported = new TreeSet<>();
+        for (int i = 0; i < listenerTypes.length; i++) {
+            Class<?> listenerType = listenerTypes[i];
+            String name = listenerType.getName();
+            if (imported.add(name)) {
+                if (i > 0) {
+                    text.append("\n");
+                }
+                text.append("import ").append(name).append(";");
+            }
+            for (Method method : getMethods(listenerType)) {
+                for (Class<?> type : method.getParameterTypes()) {
+                    name = type.getName();
+                    if (imported.add(name)) {
+                        text.append("\nimport ").append(name).append(";");
+                    }
                 }
             }
         }
-        return imports.toString();
+        return text.toString();
     }
 
-    private String generateListenerMethods(Class<?> listenerType) {
-        StringBuilder methodDeclarations = new StringBuilder();
-        String typeName = listenerType.getSimpleName();
-        Method[] methods = getMethods(listenerType);
-        for (int m = 0; m < methods.length; m++) {
-            Method method = methods[m];
-            String methodName = method.getName();
-            if (m > 0) {
-                methodDeclarations.append("\n\n");
+    private String generateListenerMethods(Class<?>[] listenerTypes) {
+        StringBuilder text = new StringBuilder();
+        Set<String> declared = new TreeSet<>();
+        for (int i = 0; i < listenerTypes.length; i++) {
+            Class<?> listenerType = listenerTypes[i];
+            String typeName = listenerType.getSimpleName();
+            Method[] methods = getMethods(listenerType);
+            for (int m = 0; m < methods.length; m++) {
+                String method = generateImplementedListenerMethod(typeName, methods[m]);
+                if (declared.add(method)) {
+                    if (declared.size() > 1) {
+                        text.append("\n\n");
+                    }
+                    text.append(method);
+                }
             }
-            methodDeclarations.append("    @Override\n");
-            methodDeclarations.append("    public void ").append(methodName).append("(");
-            methodDeclarations.append(getParameterTypesAndNames(method));
-            methodDeclarations.append(") {\n");
-
-            for (char variable = 'a'; variable <= 'b'; variable++) {
-                methodDeclarations.append("        ((").append(typeName).append(") ").append(variable).append(").").append(methodName).append("(");
-                methodDeclarations.append(getParameterNames(method));
-                methodDeclarations.append(");\n");
-            }
-            methodDeclarations.append("    }");
         }
-        return methodDeclarations.toString();
+        return text.toString();
     }
 
-    private CharSequence generateMulticasterMethods(Class<?> listenerType) {
-        StringBuilder methodDeclarations = new StringBuilder();
-        String name = listenerType.getSimpleName();
-        methodDeclarations.append("    public static ").append(name).append(" add")
-                          .append("(").append(name).append(" existingListener, ").append(name).append(" listenerToAdd) {\n");
-        methodDeclarations.append("        return (").append(name).append(") addInternal(existingListener, listenerToAdd);\n");
-        methodDeclarations.append("    }\n");
-        methodDeclarations.append("\n");
-        methodDeclarations.append("    public static ").append(name).append(" remove")
-                          .append("(").append(name).append(" existingListener, ").append(name).append(" listenerToRemove) {\n");
-        methodDeclarations.append("        return (").append(name).append(") removeInternal(existingListener, listenerToRemove);\n");
-        methodDeclarations.append("    }");
-        return methodDeclarations.toString();
+    private String generateMulticasterAddMethod(String name) {
+        StringBuilder text = new StringBuilder();
+        text.append("    public static ").append(name).append(" add")
+            .append("(").append(name).append(" existingListener, ").append(name).append(" listenerToAdd) {\n");
+        text.append("        return (").append(name).append(") addInternal(existingListener, listenerToAdd);\n");
+        text.append("    }");
+        return text.toString();
+    }
+
+    private CharSequence generateMulticasterMethods(Class<?>[] listenerTypes) {
+        StringBuilder text = new StringBuilder();
+        Set<String> declared = new TreeSet<>();
+        for (int i = 0; i < listenerTypes.length; i++) {
+            Class<?> listenerType = listenerTypes[i];
+            String name = listenerType.getSimpleName();
+            String method = generateMulticasterAddMethod(name);
+            if (declared.add(method)) {
+                if (declared.size() > 1) {
+                    text.append("\n\n");
+                }
+                text.append(method);
+                text.append("\n");
+            }
+            method = generateMulticasterRemoveMethod(name);
+            if (declared.add(method)) {
+                if (declared.size() > 1) {
+                    text.append("\n");
+                }
+                text.append(method);
+            }
+        }
+        return text.toString();
+    }
+
+    private String generateMulticasterRemoveMethod(String name) {
+        StringBuilder text = new StringBuilder();
+        text.append("    public static ").append(name).append(" remove")
+            .append("(").append(name).append(" existingListener, ").append(name).append(" listenerToRemove) {\n");
+        text.append("        return (").append(name).append(") removeInternal(existingListener, listenerToRemove);\n");
+        text.append("    }");
+        return text.toString();
     }
 
     private String generatePackage(String fullClassName) {
