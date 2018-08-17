@@ -2,40 +2,40 @@ ${class.package}
 
 ${class.imports}
 
-final class ${class.name} implements ${listener.name} {
+final class ${class.name} implements ${interfaces.names} {
 
 ${multicaster.methods}
 
-    private static Object addInternal(Object existingListener, Object listenerToAdd) {
-        if (existingListener == null) {
-            return listenerToAdd;
+    private static Object addInternal(Object existingObject, Object objectToAdd) {
+        if (existingObject == null) {
+            return objectToAdd;
         }
-        if (listenerToAdd == null) {
-            return existingListener;
+        if (objectToAdd == null) {
+            return existingObject;
         }
-        return new ${class.name}(existingListener, listenerToAdd);
+        return new ${class.name}(existingObject, objectToAdd);
     }
 
-    private static Object removeInternal(Object existingListener, Object listenerToRemove) {
-        if (existingListener == listenerToRemove || existingListener == null) {
+    private static Object removeInternal(Object existingObject, Object objectToRemove) {
+        if (existingObject == objectToRemove || existingObject == null) {
             return null;
         }
-        if (existingListener instanceof ${class.name}) {
-            ${class.name} tuple = (${class.name}) existingListener;
-            if (listenerToRemove == tuple.a) {
+        if (existingObject instanceof ${class.name}) {
+            ${class.name} tuple = (${class.name}) existingObject;
+            if (objectToRemove == tuple.a) {
                 return tuple.b;
             }
-            if (listenerToRemove == tuple.b) {
+            if (objectToRemove == tuple.b) {
                 return tuple.a;
             }
-            Object a = removeInternal(tuple.a, listenerToRemove);
-            Object b = removeInternal(tuple.b, listenerToRemove);
+            Object a = removeInternal(tuple.a, objectToRemove);
+            Object b = removeInternal(tuple.b, objectToRemove);
             if (a == tuple.a && b == tuple.b) {
                 return tuple;
             }
             return addInternal(a, b);
         }
-        return existingListener;
+        return existingObject;
     }
 
     private final Object a;
@@ -46,5 +46,5 @@ ${multicaster.methods}
         this.b = b;
     }
 
-${listener.methods}
+${interfaces.methods}
 }

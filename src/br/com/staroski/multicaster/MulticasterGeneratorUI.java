@@ -96,7 +96,7 @@ public class MulticasterGeneratorUI extends JFrame {
         textFieldClassName = new JTextField();
         textFieldClassName.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(textFieldClassName);
-        JLabel listenerName = new JLabel("Listener interface name: (Use comma to separate more than one)");
+        JLabel listenerName = new JLabel("Interface to implement: (Use comma to separate more than one)");
         listenerName.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(listenerName);
         textFieldListenerName = new JTextField();
