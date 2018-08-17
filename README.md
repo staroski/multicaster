@@ -296,8 +296,12 @@ As we can see the `EventGenerator` code looks much more simple and if we run the
 ## What is this repository for?
 The **multicaster** generates a class like the `EventMulticaster` shown in this hypothetical example.
 
-The easiest way to create your own multicaster is running the GUI class: `br.com.staroski.multicaster.MulticasterGeneratorUI`.
-It opens a frame where you can enter the name of your generated class and the name of the interfaces your multicaster should implement.
-Yes it supports multiple interfaces.
+You have two ways to create your own multicaster:
 
-Or can programmatically do it with the class: `br.com.staroski.multicaster.MulticasterGenerator`.
+ 1. Running the GUI class:
+    `br.com.staroski.multicaster.MulticasterGeneratorUI`.
+    It opens a frame where you can enter the name of your generated class and the name of the interfaces your multicaster should implement.
+    **Yes it supports multiple interfaces**.
+    
+ 3. Programmatically do it with the class:
+    `br.com.staroski.multicaster.MulticasterGenerator`.
