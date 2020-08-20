@@ -21,7 +21,7 @@ public class MulticasterGenerator {
     private static final String TAG_INTERFACES_METHODS = "${interfaces.methods}";
 
     public String generate(String fullClassName, String fullInterfaceName) throws Exception {
-        return generate(fullClassName, new String[] { fullInterfaceName });
+        return generate(fullClassName, fullInterfaceName);
     }
 
     public String generate(String fullClassName, String... fullInterfacesNames) throws Exception {
@@ -138,8 +138,7 @@ public class MulticasterGenerator {
     private String generateMulticasterMethodAdd(Class<?> interfaceType) {
         String name = interfaceType.getSimpleName();
         StringBuilder text = new StringBuilder();
-        text.append("    public static ").append(name).append(" add")
-            .append("(").append(name).append(" existing").append(name).append(", ").append(name).append(" ").append(toVariableName(name)).append("ToAdd) {\n");
+        text.append("    public static ").append(name).append(" add").append("(").append(name).append(" existing").append(name).append(", ").append(name).append(" ").append(toVariableName(name)).append("ToAdd) {\n");
         text.append("        return (").append(name).append(") addInternal(existing").append(name).append(", ").append(toVariableName(name)).append("ToAdd);\n");
         text.append("    }");
         return text.toString();
@@ -148,8 +147,7 @@ public class MulticasterGenerator {
     private String generateMulticasterMethodRemove(Class<?> interfaceType) {
         String name = interfaceType.getSimpleName();
         StringBuilder text = new StringBuilder();
-        text.append("    public static ").append(name).append(" remove")
-            .append("(").append(name).append(" existing").append(name).append(", ").append(name).append(" ").append(toVariableName(name)).append("ToRemove) {\n");
+        text.append("    public static ").append(name).append(" remove").append("(").append(name).append(" existing").append(name).append(", ").append(name).append(" ").append(toVariableName(name)).append("ToRemove) {\n");
         text.append("        return (").append(name).append(") removeInternal(existing").append(name).append(", ").append(toVariableName(name)).append("ToRemove);\n");
         text.append("    }");
         return text.toString();

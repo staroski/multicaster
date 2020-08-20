@@ -193,10 +193,11 @@ final class TextLineNumber extends JPanel implements CaretListener, DocumentList
 
         while (rowStartOffset <= endOffset) {
             try {
-                if (isCurrentLine(rowStartOffset))
+                if (isCurrentLine(rowStartOffset)) {
                     g.setColor(getCurrentLineForeground());
-                else
+                } else {
                     g.setColor(getForeground());
+                }
 
                 // Get the line number as a string and then determine the
                 // "X" and "Y" offsets for drawing the string.
@@ -267,7 +268,7 @@ final class TextLineNumber extends JPanel implements CaretListener, DocumentList
      * <li>TextLineNumber.CENTER
      * <li>TextLineNumber.RIGHT (default)
      * </ul>
-     * 
+     *
      * @param currentLineForeground the Color used to render the current line
      */
     public void setDigitAlignment(float digitAlignment) {
@@ -343,8 +344,9 @@ final class TextLineNumber extends JPanel implements CaretListener, DocumentList
             descent = fontMetrics.getDescent();
         } else // We need to check all the attributes for font changes
         {
-            if (fonts == null)
-                fonts = new HashMap<String, FontMetrics>();
+            if (fonts == null) {
+                fonts = new HashMap<>();
+            }
 
             Element root = component.getDocument().getDefaultRootElement();
             int index = root.getElementIndex(rowStartOffset);
@@ -379,10 +381,11 @@ final class TextLineNumber extends JPanel implements CaretListener, DocumentList
         int caretPosition = component.getCaretPosition();
         Element root = component.getDocument().getDefaultRootElement();
 
-        if (root.getElementIndex(rowStartOffset) == root.getElementIndex(caretPosition))
+        if (root.getElementIndex(rowStartOffset) == root.getElementIndex(caretPosition)) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -417,9 +420,10 @@ final class TextLineNumber extends JPanel implements CaretListener, DocumentList
         int index = root.getElementIndex(rowStartOffset);
         Element line = root.getElement(index);
 
-        if (line.getStartOffset() == rowStartOffset)
+        if (line.getStartOffset() == rowStartOffset) {
             return String.valueOf(index + 1);
-        else
+        } else {
             return "";
+        }
     }
 }

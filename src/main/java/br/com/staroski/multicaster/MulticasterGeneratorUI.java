@@ -21,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 public class MulticasterGeneratorUI extends JFrame {
 
@@ -43,7 +44,7 @@ public class MulticasterGeneratorUI extends JFrame {
 
     private MulticasterGeneratorUI() {
         super("Multicaster Generator");
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setSize(new Dimension(800, 600));
         setMinimumSize(new Dimension(640, 480));
         addWindowListener(new WindowAdapter() {
